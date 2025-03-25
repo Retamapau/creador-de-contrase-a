@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Contraseñas Seguras</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 450px; }
+        h1 { font-size: 24px; margin-bottom: 15px; text-align: center; }
+        input, button, textarea, select { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
+        button { background-color: #4CAF50; color: white; cursor: pointer; transition: background-color 0.3s; }
+        button:hover { background-color: #45a049; }
+        .strength { margin-top: 10px; font-weight: bold; }
+        .strong { color: green; }
+        .medium { color: orange; }
+        .weak { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Contraseñas Seguras</h1>
+
+        <!-- Opción de creación manual -->
+        <input type="password" id="evaluarContrasena" placeholder="Ingresa una contraseña para evaluar">
+        <button onclick="evaluarFortaleza()">Evaluar Fortaleza</button>
+
+        <!-- Opción de generación automática -->
+        <button onclick="generarContrasena()">Generar Contraseña Automática</button>
+        <textarea id="contrasena" rows="2" readonly></textarea>
+        <button onclick="copiarContrasena('contrasena')">Copiar Contraseña</button>
+
+        <!-- Opción de contraseñas sugeridas -->
+        <button onclick="sugerirContrasenas()">Sugerir Opciones de Contraseñas</button>
+        <select id="sugerencias" onchange="copiarContrasena('sugerencias')"></select>
+
+        <div id="resultado" class="strength"></div>
+    </div>
+    <script>
+        function generarContrasena() {
+            const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+[]{}|;:,.<>?';
+            let contrasena = '';
+            while (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/.test(contrasena)) {
+                contrasena = '';
+                for (let i = 0; i < 8; i++) {
+                    contrasena += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+                }
+            }
+            document.getElementById('contrasena').value = contrasena;
+        }
+
+        function evaluarFortaleza() {
+            const contrasena = document.getElementById('evaluarContrasena').value;
+            const resultado = document.getElementById('resultado');
+            let mensaje = '';
+            let fuerza = 0;
+
+            if (contrasena.length >= 8) fuerza++;
+            if (/[A-Z]/.test(contrasena)) fuerza++;
+            if (/[a-z]/.test(contrasena)) fuerza++;
+            if (/[0-9]/.test(contrasena)) fuerza++;
+            if (/[@$!%*?&#]/.test(contrasena)) fuerza++;
+
+            switch (fuerza) {
+                case 5:
+                    mensaje = 'Contraseña Fuerte ✔️ - Incluye mayúsculas, minúsculas, números y símbolos.';
+                    resultado.className = 'strength strong';
+                    break;
+                case 3:
+                case 4:
+                    mensaje = 'Contraseña Moderada ⚠️ - Podrías mejorarla añadiendo más variedad de caracteres.';
+                    resultado.className = 'strength medium';
+                    break;
+                default:
+                    mensaje = 'Contraseña Débil ❌ - Usa al menos 8 caracteres con letras, números y símbolos.';
+                    resultado.className = 'strength weak';
+                    break;
+            }
+
+            resultado.textContent = mensaje;
+        }
+
+        function sugerirContrasenas() {
+            const opciones = document.getElementById('sugerencias');
+            opciones.innerHTML = '';
+
+            for (let i = 0; i < 5; i++) {
+                let contrasena = '';
+                while (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/.test(contrasena)) {
+                    contrasena = '';
+                    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+                    for (let j = 0; j < 8; j++) {
+                        contrasena += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+                    }
+                }
+                const option = document.createElement('option');
+                option.value = contrasena;
+                option.textContent = contrasena;
+                opciones.appendChild(option);
+            }
+        }
+
+        function copiarContrasena(id) {
+            const elemento = document.getElementById(id);
+            const valor = id === 'sugerencias' ? elemento.value : elemento.value;
+            navigator.clipboard.writeText(valor).then(() => alert('¡Contraseña copiada al portapapeles!'));
+        }
+    </script>
+</body>
+</html>
